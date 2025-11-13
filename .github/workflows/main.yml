@@ -23,12 +23,6 @@ jobs:
           extensions: mbstring, xml, bcmath, pdo, pdo_mysql, fileinfo, gd, zip
           coverage: none
 
-      - name: Copy .env file
-        run: |
-          if [ -f .env.example ]; then
-            cp .env.example .env
-          fi
-
       - name: Install Composer dependencies
         run: |
           composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
@@ -48,8 +42,13 @@ jobs:
           npm run build
         continue-on-error: false
 
-      - name: Generate application key
-        run: php artisan key:generate --force
+      - name: Create minimal .env for build
+        run: |
+          echo "APP_NAME=Laravel" > .env
+          echo "APP_ENV=production" >> .env
+          echo "APP_KEY=" >> .env
+          echo "APP_DEBUG=false" >> .env
+          echo "APP_URL=http://localhost" >> .env
 
       - name: Clear and cache config
         run: |
