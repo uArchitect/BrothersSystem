@@ -1,5 +1,5 @@
 @include('layouts.header')
-
+2
 <style>
 .hover-shadow {
     transition: all 0.3s ease;
