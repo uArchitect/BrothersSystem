@@ -29,11 +29,24 @@ jobs:
             cp .env.example .env
           fi
 
-      - name: Install dependencies
+      - name: Install Composer dependencies
         run: |
           composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-          npm ci
+        continue-on-error: false
+
+      - name: Install NPM dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+        continue-on-error: false
+
+      - name: Build assets
+        run: |
           npm run build
+        continue-on-error: false
 
       - name: Generate application key
         run: php artisan key:generate --force
@@ -47,16 +60,40 @@ jobs:
 
       - name: Create deployment package
         run: |
+          set -e
+          echo "Creating deployment directory..."
           mkdir -p deploy
-          # Copy necessary files
-          cp -r app bootstrap config database public resources routes storage deploy/
-          cp artisan composer.json composer.lock package.json deploy/
-          cp -r vendor deploy/ 2>/dev/null || true
-          # Copy .env if exists
-          cp .env deploy/ 2>/dev/null || true
-          # Copy other necessary files
+          
+          echo "Copying Laravel core files..."
+          cp -r app bootstrap config database public resources routes deploy/
+          cp artisan composer.json composer.lock deploy/
+          
+          echo "Copying vendor directory..."
+          if [ -d vendor ]; then
+            cp -r vendor deploy/
+          else
+            echo "Warning: vendor directory not found"
+            exit 1
+          fi
+          
+          echo "Creating storage structure..."
+          mkdir -p deploy/storage/framework/cache/data
+          mkdir -p deploy/storage/framework/sessions
+          mkdir -p deploy/storage/framework/views
+          mkdir -p deploy/storage/logs
+          mkdir -p deploy/storage/app/public
+          
+          echo "Setting storage permissions..."
+          chmod -R 775 deploy/storage
+          chmod -R 775 deploy/bootstrap/cache
+          
+          echo "Copying additional files..."
+          [ -f package.json ] && cp package.json deploy/ || true
           [ -f .htaccess ] && cp .htaccess deploy/public/ || true
           [ -f robots.txt ] && cp robots.txt deploy/public/ || true
+          
+          echo "Deployment package created successfully"
+          ls -la deploy/
 
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
@@ -66,18 +103,22 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./deploy/
           server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          dangerous-clean-slate: false
+          dry-run: false
+          log-level: verbose
           exclude: |
             **/.git*
-            **/.git*/**
+            **/.git*/
             **/node_modules/**
+            **/.env
             **/.env.example
             **/.env.backup
             **/tests/**
             **/.phpunit.cache
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
+            **/storage/logs/*.log
+            **/storage/framework/cache/data/*
+            **/storage/framework/sessions/*
+            **/storage/framework/views/*
 
       - name: Cleanup
         run: rm -rf deploy
