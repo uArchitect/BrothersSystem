@@ -20,7 +20,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, bcmath, pdo, pdo_mysql, pdo_sqlite, fileinfo, gd, zip, redis
+          extensions: mbstring, xml, bcmath, pdo, pdo_mysql, fileinfo, gd, zip
           coverage: none
 
       - name: Setup Node.js
@@ -29,125 +29,51 @@ jobs:
           node-version: '20'
 
       - name: Install Composer dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-        continue-on-error: false
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       - name: Install NPM dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-        continue-on-error: false
+        run: npm install
 
-      - name: Build assets with Vite
-        run: |
-          npm run build
-        continue-on-error: false
+      - name: Build assets
+        run: npm run build
 
-      - name: Create minimal .env for build (no database required)
+      - name: Create minimal .env
         run: |
-          echo "APP_NAME=\"Brothers System\"" > .env
+          echo "APP_NAME=Laravel" > .env
           echo "APP_ENV=production" >> .env
           echo "APP_KEY=" >> .env
           echo "APP_DEBUG=false" >> .env
           echo "APP_URL=http://localhost" >> .env
-          echo "LOG_CHANNEL=stack" >> .env
-          echo "LOG_LEVEL=error" >> .env
-
-      - name: Optimize Laravel
-        run: |
-          php artisan config:cache || true
-          php artisan route:cache || true
-          php artisan view:cache || true
-        continue-on-error: true
 
       - name: Create deployment package
         run: |
-          set -e
-          echo "🚀 Creating deployment directory..."
           mkdir -p deploy
-          
-          echo "📦 Copying Laravel core files..."
           cp -r app bootstrap config database public resources routes storage deploy/
           cp artisan composer.json composer.lock deploy/
-          
-          echo "📚 Copying vendor directory..."
-          if [ ! -d vendor ]; then
-            echo "❌ Error: vendor directory not found!"
-            exit 1
-          fi
           cp -r vendor deploy/
-          
-          echo "📁 Creating storage structure..."
           mkdir -p deploy/storage/framework/cache/data
           mkdir -p deploy/storage/framework/sessions
           mkdir -p deploy/storage/framework/views
           mkdir -p deploy/storage/logs
           mkdir -p deploy/storage/app/public
-          mkdir -p deploy/storage/app/private
-          
-          # Create .gitkeep files for storage directories
-          touch deploy/storage/framework/cache/data/.gitkeep
-          touch deploy/storage/framework/sessions/.gitkeep
-          touch deploy/storage/framework/views/.gitkeep
-          touch deploy/storage/logs/.gitkeep
-          
-          echo "🔐 Setting storage permissions..."
-          chmod -R 775 deploy/storage
-          chmod -R 775 deploy/bootstrap/cache
-          
-          echo "📄 Copying additional files..."
-          [ -f package.json ] && cp package.json deploy/ || true
-          [ -f vite.config.js ] && cp vite.config.js deploy/ || true
-          [ -f tailwind.config.js ] && cp tailwind.config.js deploy/ || true
-          [ -f postcss.config.js ] && cp postcss.config.js deploy/ || true
-          [ -f .htaccess ] && cp .htaccess deploy/public/ || true
-          [ -f robots.txt ] && cp robots.txt deploy/public/ || true
-          
-          echo "✅ Deployment package created successfully"
-          echo "📊 Package size:"
-          du -sh deploy/
-          echo "📋 Package contents:"
-          ls -la deploy/ | head -20
 
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: dns3.silverturk.net
           username: brother2
-          password: 3VwMa0rVi:R+78
+          password: '3VwMa0rVi:R+78'
           local-dir: ./deploy/
           server-dir: /public_html/pool.brothersorganizasyon.com/
-          dangerous-clean-slate: false
-          dry-run: false
           log-level: verbose
+          dangerous-clean-slate: false
           exclude: |
             **/.git*
-            **/.git*/
             **/node_modules/**
             **/.env
-            **/.env.*
             **/tests/**
-            **/.phpunit.cache
             **/storage/logs/*.log
-            **/storage/framework/cache/data/*
-            **/storage/framework/sessions/*
-            **/storage/framework/views/*
-            **/public/hot
-            **/public/build/manifest.json
-            **/database/database.sqlite
-            **/database/*.sqlite
-            **/.idea/**
-            **/.vscode/**
-            **/.fleet/**
-            **/.nova/**
 
       - name: Cleanup
         if: always()
-        run: |
-          echo "🧹 Cleaning up..."
-          rm -rf deploy
-          echo "✅ Cleanup completed"
+        run: rm -rf deploy
