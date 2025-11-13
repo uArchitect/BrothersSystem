@@ -120,7 +120,7 @@ jobs:
           username: developer@pool.brothersorganizasyon.com
           password: kralugur123
           local-dir: ./deploy/
-          server-dir: /public_html
+          server-dir: /public_html/
           dangerous-clean-slate: false
           dry-run: false
           log-level: verbose
