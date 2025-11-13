@@ -58,11 +58,13 @@ jobs:
           mkdir -p deploy/storage/app/public
 
       - name: Deploy to FTP
+        env:
+          FTP_PASSWORD: 3VwMa0rVi:R+78
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: dns3.silverturk.net
           username: brother2
-          password: '3VwMa0rVi:R+78'
+          password: ${{ env.FTP_PASSWORD }}
           local-dir: ./deploy/
           server-dir: /public_html/pool.brothersorganizasyon.com/
           log-level: verbose
