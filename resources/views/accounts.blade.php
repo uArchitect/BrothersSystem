@@ -7,7 +7,7 @@
         <li class="breadcrumb-item">Mali İşlemler</li>
         <li class="breadcrumb-item active">Kasa ve Banka Hesapları</li>
         <li class="position-absolute pos-top pos-right d-none d-sm-block"><span class="js-get-date"></span></li>
-    </ol>
+    </ol>2
 
     <div class="row">
         <div class="col-xl-12">
