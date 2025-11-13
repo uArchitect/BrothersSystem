@@ -116,11 +116,11 @@ jobs:
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: pool.brothersorganizasyon.com
+          username: developer@pool.brothersorganizasyon.com
+          password: kralugur123
           local-dir: ./deploy/
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          server-dir: /public_html
           dangerous-clean-slate: false
           dry-run: false
           log-level: verbose
