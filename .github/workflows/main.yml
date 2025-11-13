@@ -116,9 +116,9 @@ jobs:
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: brothersorganizasyon.com
-          username: developer@brothersorganizasyon.com
-          password: kralugur123
+          server: 159.253.44.149
+          username: brother2
+          password: 3VwMa0rVi:R+78
           local-dir: ./deploy/
           server-dir: /public_html/pool.brothersorganizasyon.com/
           dangerous-clean-slate: false
