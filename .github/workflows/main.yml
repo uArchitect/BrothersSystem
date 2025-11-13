@@ -1,0 +1,84 @@
+name: Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to FTP Server
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, bcmath, pdo, pdo_mysql, fileinfo, gd, zip
+          coverage: none
+
+      - name: Copy .env file
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          fi
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+          npm ci
+          npm run build
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Clear and cache config
+        run: |
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+          php artisan route:clear
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy
+          # Copy necessary files
+          cp -r app bootstrap config database public resources routes storage deploy/
+          cp artisan composer.json composer.lock package.json deploy/
+          cp -r vendor deploy/ 2>/dev/null || true
+          # Copy .env if exists
+          cp .env deploy/ 2>/dev/null || true
+          # Copy other necessary files
+          [ -f .htaccess ] && cp .htaccess deploy/public/ || true
+          [ -f robots.txt ] && cp robots.txt deploy/public/ || true
+
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env.example
+            **/.env.backup
+            **/tests/**
+            **/.phpunit.cache
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+
+      - name: Cleanup
+        run: rm -rf deploy
+
