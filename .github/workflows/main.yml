@@ -116,7 +116,7 @@ jobs:
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: 159.253.44.149
+          server: dns3.silverturk.net
           username: brother2
           password: 3VwMa0rVi:R+78
           local-dir: ./deploy/
