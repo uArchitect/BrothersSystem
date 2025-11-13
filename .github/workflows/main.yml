@@ -117,7 +117,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: 159.253.44.149
-          username: brother2@brothersorganizasyon.com
+          username: brother2
           password: 3VwMa0rVi:R+78
           local-dir: ./deploy/
           server-dir: /public_html/pool.brothersorganizasyon.com/
