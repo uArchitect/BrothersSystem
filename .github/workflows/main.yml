@@ -37,9 +37,11 @@ jobs:
         with:
           server: dns3.silverturk.net
           username: brother2
-          password: ${{ secrets.FTP_PASSWORD }}
+          password: 3VwMa0rVi:R+78
           local-dir: ./
           server-dir: /public_html/pool.brothersorganizasyon.com/
+          protocol: ftp
+          port: 21
           log-level: verbose
           exclude: |
             **/.git*
