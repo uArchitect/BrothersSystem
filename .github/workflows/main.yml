@@ -33,13 +33,13 @@ jobs:
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: "dns3.silverturk.net"
-          username: "brother2"
-          password: "3VwMa0rVi:R+78"
+          server: "ftp.siparismasanda.com"
+          username: "developer@siparismasanda.com"
+          password: "uqurcan0302"
           protocol: ftp
           port: 21
           local-dir: "./"
-          server-dir: "/public_html/pool.brothersorganizasyon.com/"
+          server-dir: "/public_html/"
           log-level: minimal
           exclude: |
             **/node_modules/**
