@@ -19,7 +19,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, bcmath, pdo, pdo_mysql, fileinfo, gd, zip
+          extensions: mbstring xml bcmath pdo pdo_mysql fileinfo gd zip
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,10 +36,10 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: dns3.silverturk.net
-          username: brother2
-          password: 3VwMa0rVi:R+78
-          local-dir: ./
-          server-dir: /public_html/pool.brothersorganizasyon.com/
+          username: "brother2@silverturk.net"
+          password: "3VwMa0rVi:R+78"
+          local-dir: "./"
+          server-dir: "/public_html/pool.brothersorganizasyon.com/"
           protocol: ftp
           port: 21
           log-level: verbose
