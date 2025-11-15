@@ -38,7 +38,7 @@ jobs:
           password: "3VwMa0rVi:R+78"
           protocol: ftp
           port: 21
-          local-dir: "."
+          local-dir: "./"
           server-dir: "/public_html/pool.brothersorganizasyon.com/"
           log-level: minimal
           exclude: |
