@@ -19,7 +19,7 @@ jobs:
           php-version: '8.2'
           extensions: mbstring xml bcmath pdo pdo_mysql fileinfo gd zip
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -33,12 +33,12 @@ jobs:
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: dns3.silverturk.net
-          username: "brothers2"
+          server: "dns3.silverturk.net"
+          username: "brother2"
           password: "3VwMa0rVi:R+78"
           protocol: ftp
           port: 21
-          local-dir: "./"
+          local-dir: "."
           server-dir: "/public_html/pool.brothersorganizasyon.com/"
           log-level: minimal
           exclude: |
