@@ -9,7 +9,6 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to FTP Server
     runs-on: ubuntu-latest
     
     steps:
@@ -21,61 +20,36 @@ jobs:
         with:
           php-version: '8.2'
           extensions: mbstring, xml, bcmath, pdo, pdo_mysql, fileinfo, gd, zip
-          coverage: none
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Install NPM dependencies
-        run: npm install
-
-      - name: Build assets
-        run: npm run build
-
-      - name: Create minimal .env
+      - name: Install dependencies
         run: |
-          echo "APP_NAME=Laravel" > .env
-          echo "APP_ENV=production" >> .env
-          echo "APP_KEY=" >> .env
-          echo "APP_DEBUG=false" >> .env
-          echo "APP_URL=http://localhost" >> .env
-
-      - name: Create deployment package
-        run: |
-          mkdir -p deploy
-          cp -r app bootstrap config database public resources routes storage deploy/
-          cp artisan composer.json composer.lock deploy/
-          cp -r vendor deploy/
-          mkdir -p deploy/storage/framework/cache/data
-          mkdir -p deploy/storage/framework/sessions
-          mkdir -p deploy/storage/framework/views
-          mkdir -p deploy/storage/logs
-          mkdir -p deploy/storage/app/public
+          composer install --no-dev --optimize-autoloader --no-interaction
+          npm install
+          npm run build
 
       - name: Deploy to FTP
-        env:
-          FTP_PASSWORD: 3VwMa0rVi:R+78
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: dns3.silverturk.net
           username: brother2
-          password: ${{ env.FTP_PASSWORD }}
-          local-dir: ./deploy/
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
           server-dir: /public_html/pool.brothersorganizasyon.com/
-          log-level: verbose
-          dangerous-clean-slate: false
+          protocol: ftp
+          port: 21
           exclude: |
             **/.git*
+            **/.github/**
             **/node_modules/**
-            **/.env
+            **/.env*
             **/tests/**
             **/storage/logs/*.log
-
-      - name: Cleanup
-        if: always()
-        run: rm -rf deploy
+            package.json
+            package-lock.json
+            .gitignore
+            README.md
