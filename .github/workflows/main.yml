@@ -2,15 +2,13 @@ name: Deploy to FTP
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,14 +19,14 @@ jobs:
           php-version: '8.2'
           extensions: mbstring xml bcmath pdo pdo_mysql fileinfo gd zip
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install & Build
         run: |
-          composer install --no-dev --optimize-autoloader --no-interaction
+          composer install --no-dev --no-interaction --optimize-autoloader
           npm install
           npm run build
 
@@ -36,21 +34,21 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: dns3.silverturk.net
-          username: "brother2@silverturk.net"
+          username: "brothers2"
           password: "3VwMa0rVi:R+78"
-          local-dir: "./"
-          server-dir: "/public_html/pool.brothersorganizasyon.com/"
           protocol: ftp
           port: 21
-          log-level: verbose
+          local-dir: "./"
+          server-dir: "/public_html/pool.brothersorganizasyon.com/"
+          log-level: minimal
           exclude: |
+            **/node_modules/**
             **/.git*
             **/.github/**
-            **/node_modules/**
-            **/.env*
             **/tests/**
-            **/storage/logs/*.log
+            **/.env*
+            storage/logs/*.log
             package.json
             package-lock.json
-            .gitignore
             README.md
+            .gitignore
